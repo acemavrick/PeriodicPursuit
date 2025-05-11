@@ -43,7 +43,7 @@ export const questions = [
     points: 25
   },
   {
-    text: "Which Period 3 cation gives a yellow-green flame test?",
+    text: "Which Period 3 cation gives a yellow flame test?",
     options: ["Sodium", "Potassium", "Calcium", "Copper"],
     correct: 2,
     points: 10
@@ -80,7 +80,7 @@ export const questions = [
   },
   {
     text: "Calculate the pH of a 0.020 M HCl solution.",
-    options: ["1.70", "3.70", "2.00", "7.00"],
+    options: ["1.70", "1.30", "2.00", "7.00"],
     correct: 1,
     points: 15
   },
@@ -94,6 +94,66 @@ export const questions = [
     text: "Which Period 3 element is a key component of antacids (Mg(OH)₂)?",
     options: ["Magnesium", "Aluminum", "Calcium", "Phosphorus"],
     correct: 0,
+    points: 15
+  }
+  {
+    text: "What is the electron configuration of chlorine?",
+    options: ["1s² 2s² 2p⁶ 3s² 3p⁵", "1s² 2s² 2p⁶ 3s² 3p⁶", "1s² 2s² 2p⁵ 3s² 3p⁶", "1s² 2s² 2p⁶ 3s² 3p³"],
+    correct: 0,
+    points: 15
+  },
+  {
+    text: "Which Period 3 element has the highest electronegativity?",
+    options: ["Phosphorus", "Silicon", "Sulfur", "Chlorine"],
+    correct: 3,
+    points: 10
+  },
+  {
+    text: "Which Period 3 compound has the highest melting point?",
+    options: ["NaCl", "MgO", "Al₂O₃", "SiO₂"],
+    correct: 1, 
+    points: 15
+  },
+  {
+    text: "The pH of 0.01M NaOH solution is approximately:",
+    options: ["2", "7", "12", "14"],
+    correct: 2, 
+    points: 15
+  },
+  {
+    text: "Which Period 3 element has the largest atomic radius?",
+    options: ["Sodium", "Magnesium", "Aluminum", "Silicon"],
+    correct: 0, 
+    points: 10
+  },
+  {
+    text: "Which Period 3 element forms a chloride that hydrolyzes to give an acidic solution?",
+    options: ["Sodium", "Magnesium", "Aluminum", "Argon"],
+    correct: 2, 
+    points: 20
+  },
+  {
+    text: "What is the oxidation state of phosphorus in H₃PO₄?",
+    options: ["+1", "+3", "+5", "-3"],
+    correct: 2, 
+    points: 15
+  },
+  {
+    text: "Which Period 3 element can form a compound with the formula XH₃?",
+    options: ["Silicon", "Phosphorus", "Sulfur", "Chlorine"],
+    correct: 1, 
+    points: 15
+  },
+  {
+    text: "What is the hybridization of Al in AlCl₃?",
+    options: ["sp", "sp²", "sp³", "sp³d"],
+    correct: 1, 
+    points: 20
+  },
+  {
+    text: "When Period 3 metals react with oxygen, which forms a peroxide?",
+    options: ["Sodium", "Magnesium", "Aluminum", "Silicon"],
+    correct: 0, 
     points: 15
   }
 ];
