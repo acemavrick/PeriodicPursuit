@@ -35,7 +35,7 @@ export const questions = [
   {
     text: "Which naturally occurring actinide is most abundant in Earth's crust?",
     options: ["Uranium", "Thorium", "Actinium", "Protactinium"],
-    correct: 1,
+    correct: 0,
     points: 10
   },
 
@@ -98,12 +98,12 @@ export const questions = [
   {
     text: "What mass of Pu-239 is produced by neutron capture and β-decay from 1.00 mol of U-238? (Atomic masses nearly equal)",
     options: ["239 g", "238 g", "240 g", "237 g"],
-    correct: 0,
+    correct: 1,
     points: 20
   },
   {
     text: "Calculate the activity (in Bq) of 1.00 μg of Am-241 (t₁/₂=432.2 yr). (λ = ln2/t₁/₂)",
-    options: ["8.00×10³ Bq", "3.80×10⁴ Bq", "1.20×10² Bq", "5.00×10⁵ Bq"],
+    options: ["8.00×10³ Bq", "1.27×10⁵ Bq", "1.20×10² Bq", "5.00×10⁵ Bq"],
     correct: 1,
     points: 20
   },
@@ -115,8 +115,8 @@ export const questions = [
   },
   {
     text: "What volume of 0.200 M HCl is required to dissolve 1.00 g of UO₃ (M=270.03) by UO₃ + 6 HCl → UCl₄ + Cl₂ + 3 H₂O?",
-    options: ["45.0 mL", "60.0 mL", "90.0 mL", "30.0 mL"],
-    correct: 0,
+    options: ["45.0 mL", "60.0 mL", "110.0 mL", "30.0 mL"],
+    correct: 2,
     points: 20
   },
 
