@@ -55,10 +55,21 @@
                         <!-- This might be repurposed or removed based on new question logic -->
                     </div>
                     <div id="question-timer-display" style="display: none;">Time: <span id="timer-value">30</span>s</div>
+                    <div id="question-points-display" style="text-align: center; margin-bottom: 0.5rem; font-weight: 500;">Points: <span id="question-points-value">0</span></div>
                     <div class="question-text" id="question-text"></div>
                     <div class="answer-options" id="answer-options"></div>
                     <div id="feedback"></div>
                     <button id="continue-button" class="button primary-button" style="display: none;">Continue</button>
+                </div>
+                
+                <div id="about-section" class="sidebar-section" style="margin-top: 1rem;">
+                    <h3 class="sidebar-title" style="margin-bottom: 0.5rem; font-size: 1.1rem;">Game Guide</h3>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.3rem;"><strong>Rules:</strong> Answer questions to move. Start at Group 1, reach Group 18 (Noble Gas).</p>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.3rem;"><strong>Scoring:</strong> Correct answers award points. Harder questions = more points. Final Score = Total Points / Turns.</p>
+                    <p style="font-size: 0.85rem; margin-bottom: 0.3rem;"><strong>Movement:</strong> Click an adjacent, unvisited element to try moving.</p>
+                    <p style="font-size: 0.8rem; text-align: center; margin-top: 0.75rem; color: var(--text-color-muted);">
+                        Developed by <a href="https://github.com/acemavrick" target="_blank" class="subtle-link">acemavrick</a>.
+                    </p>
                 </div>
                 
                 <div id="endgame-screen" style="display: none;">

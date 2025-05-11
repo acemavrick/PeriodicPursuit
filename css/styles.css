@@ -358,9 +358,14 @@ body {
     transition: background-color 0.2s ease, border-color 0.2s ease;
 }
 
-.answer-option-container:hover {
+.answer-option-container:hover:not(.no-hover) {
     background-color: var(--primary-color-x-light);
     border-color: var(--primary-color-light);
+}
+
+/* Prevent hover effects after selection */
+.answer-option-container.no-hover {
+    pointer-events: none;
 }
 
 .answer-radio-input {
@@ -393,6 +398,43 @@ body {
 .answer-option-container.incorrect-container .answer-radio-label {
     color: #B91C1C !important; /* Red 700 */
     font-weight: bold;
+}
+
+/* Styles for enhanced answer feedback */
+.answer-option-container.selected-incorrect {
+    background-color: #FECACA !important; /* Light Red */
+    border-color: #DC2626 !important; /* Red 600 */
+    opacity: 0.65; /* Dim the incorrect selection slightly more */
+}
+.answer-option-container.selected-incorrect .answer-radio-label {
+    color: #B91C1C !important; /* Red 700 */
+    /* font-weight: normal; Let existing styles or actual-correct define boldness if also applied */
+}
+
+.answer-option-container.actual-correct {
+    background-color: var(--secondary-color-light) !important; /* Light Emerald/Green */
+    border-color: var(--secondary-color-dark) !important; /* Dark Emerald/Green */
+    opacity: 1 !important; /* Ensure it's not dimmed */
+}
+.answer-option-container.actual-correct .answer-radio-label {
+    color: var(--secondary-color-dark) !important; /* Dark Emerald/Green */
+    font-weight: bold;
+}
+
+/* For unselected incorrect options during feedback */
+.answer-option-container.other-incorrect-dimmed {
+    opacity: 0.5; /* Dim them */
+    /* Keeps default background/border unless overridden */
+}
+
+/* Subtle link style for the About section */
+.subtle-link {
+    color: var(--text-color-muted);
+    text-decoration: none;
+}
+.subtle-link:hover {
+    color: var(--primary-color);
+    text-decoration: underline;
 }
 
 /* Start Element Selection Screen */

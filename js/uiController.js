@@ -297,18 +297,39 @@ class UIController {
             if (this.elements.questionScreen && this.elements.questionScreen.style) { 
                 this.elements.questionScreen.style.display = 'block'; // Show question area
             }
-            this.showQuestion(state.currentQuestion); // Populate question
-        } else if (state.gameActive) {
+            // Update question text if it doesn't match (e.g. if askQuestion set it, or if it was cleared)
+            if (this.elements.questionText && this.elements.questionText.textContent !== state.currentQuestion.text) {
+                this.elements.questionText.textContent = state.currentQuestion.text;
+            }
+            // Ensure answer options container is visible. Its content is managed by showQuestion (initial) and showAnswerFeedback (styling).
+            if (this.elements.answersContainer && this.elements.answersContainer.style) {
+                this.elements.answersContainer.style.display = 'block';
+            }
+            const pointsDisplay = document.getElementById('question-points-value');
+            if (pointsDisplay) pointsDisplay.textContent = state.currentQuestion.points || '0';
+            // The actual content and styling of questionText and answersContainer
+            // are handled by showQuestion (when new) and showAnswerFeedback (after answer).
+            // updateDisplay just ensures they are visible if a question is active.
+
+        } else if (state.gameActive) { // No question active (e.g. after continue, before new selection), but game is active
             this.showScreen('game');
             if (this.elements.questionScreen && this.elements.questionScreen.style) {
                  this.elements.questionScreen.style.display = 'block'; // Question container is part of game, always block
             }
             if (this.elements.answersContainer && this.elements.answersContainer.style) {
                  this.elements.answersContainer.style.display = 'none'; // Hide answers if no active question
+                 this.elements.answersContainer.innerHTML = ''; // Clear them too, ready for next question
             }
             if (this.elements.questionText && !state.questionActive) { // Clear question text if no question
-                 this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
+                if (state.gameOver) {
+                    this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${state.finalScore}\nReload to play again, or click on more elements to get more questions!.`;
+                } else {
+                    this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
+                }
             }
+            const pointsDisplay = document.getElementById('question-points-value');
+            if (pointsDisplay) pointsDisplay.textContent = '0'; // Clear points display
+
         } else if (!state.gameStarted) { // Initial state before game starts
             this.showScreen('start');
         }
@@ -343,7 +364,21 @@ class UIController {
             console.error("[UIController.showQuestion] Invalid question object received:", question);
             if (this.elements.questionText) this.elements.questionText.textContent = "Error: Could not load question.";
             if (this.elements.answersContainer) this.elements.answersContainer.innerHTML = '';
+            const pointsDisplayValue = document.getElementById('question-points-value');
+            if (pointsDisplayValue) pointsDisplayValue.textContent = '0';
             return;
+        }
+
+        // Check if game is over (noble gas reached)
+        const gameState = this.gameLogic.getDisplayState();
+        
+        const pointsDisplayValue = document.getElementById('question-points-value');
+        if (pointsDisplayValue) {
+            if (gameState.gameOver) {
+                pointsDisplayValue.textContent = 'N/A';
+            } else {
+                pointsDisplayValue.textContent = question.points || '0';
+            }
         }
 
         if (this.elements.questionText) this.elements.questionText.textContent = question.text;
@@ -354,10 +389,37 @@ class UIController {
         }
         if (this.elements.continueButton) this.elements.continueButton.style.display = 'none';
 
+        // Create a flag to track if an answer has been selected already
+        let answerSelected = false;
+        
+        // Create an answer lock overlay that will be shown immediately on selection
+        const answerLockOverlay = document.createElement('div');
+        answerLockOverlay.className = 'answer-lock-overlay';
+        answerLockOverlay.style.display = 'none';
+        answerLockOverlay.style.position = 'absolute';
+        answerLockOverlay.style.top = '0';
+        answerLockOverlay.style.left = '0';
+        answerLockOverlay.style.width = '100%';
+        answerLockOverlay.style.height = '100%';
+        answerLockOverlay.style.zIndex = '100';
+        answerLockOverlay.style.backgroundColor = 'transparent';
+        answerLockOverlay.style.cursor = 'not-allowed';
+        
+        // Add the overlay to the answers container, but keep it hidden initially
+        if (this.elements.answersContainer) {
+            this.elements.answersContainer.style.position = 'relative'; // Ensure positioning context
+            this.elements.answersContainer.appendChild(answerLockOverlay);
+        }
+
+        // Create form to contain the radio button group
+        const form = document.createElement('form');
+        form.onsubmit = (e) => e.preventDefault(); // Prevent form submission
+        
         question.options.forEach((option, index) => {
             // Create a container for each radio button and its label
             const optionContainer = document.createElement('div');
             optionContainer.classList.add('answer-option-container');
+            optionContainer.dataset.index = index.toString();
 
             const radioInput = document.createElement('input');
             radioInput.type = 'radio';
@@ -370,19 +432,42 @@ class UIController {
             label.htmlFor = `answerOption${index}`;
             label.textContent = option;
             label.classList.add('answer-radio-label');
-
-            // Add event listener to the container or label for better clickability
-            // Or rely on default radio button click. For now, click on radio itself is fine.
-            // But to trigger on label click properly which calls gameLogic:
-            const handleClick = async () => {
+            
+            // Combined handler for both radio and label
+            const handleSelection = async (e) => {
+                // If an answer is already selected, prevent and ignore this interaction
+                if (answerSelected) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+                
+                // Mark as selected immediately
+                answerSelected = true;
+                
+                // Set the input as checked
+                radioInput.checked = true;
+                
+                // Disable all radio buttons immediately
+                form.querySelectorAll('input[type="radio"]').forEach(input => {
+                    input.disabled = true;
+                });
+                
+                // Show the overlay immediately to block all interactions
+                answerLockOverlay.style.display = 'block';
+                
+                // Apply the no-hover class to all options to disable hover effects
+                form.querySelectorAll('.answer-option-container').forEach(opt => {
+                    opt.classList.add('no-hover');
+                });
+                
                 console.log(`[UIController.showQuestion] Answer option ${index} ('${option}') selected via radio/label.`);
+                
+                // Process the answer with game logic
                 if (this.gameLogic && typeof this.gameLogic.handleAnswer === 'function') {
-                    radioInput.checked = true; // Ensure the clicked one is visually checked
-                    // Disable all radio buttons after selection
-                    const allRadios = this.elements.answersContainer.querySelectorAll('.answer-radio-input');
-                    allRadios.forEach(r => r.disabled = true);
-
                     const result = await this.gameLogic.handleAnswer(index);
+                    
+                    // Display the feedback (the overlay remains active)
                     if (result) {
                         this.showAnswerFeedback(result);
                     } else {
@@ -397,54 +482,87 @@ class UIController {
                     console.error("[UIController.showQuestion] gameLogic.handleAnswer is not available.");
                 }
             };
-
-            label.addEventListener('click', handleClick); // Allow click on label
-            // Radio input itself will also trigger its change/click if not stopped
-            // To avoid double firing if label click also triggers radio change that has its own listener:
-            radioInput.addEventListener('click', (e) => {
-                // If label already handled it, or to prevent default radio behavior if needed
-                // For now, let label handle the logic, and radio click can be a passthrough or also call handleClick.
-                // To prevent double console logs, only label has the full handler for now.
-                // However, direct radio click should also work.
-                 if (!radioInput.disabled) handleClick(); // If not yet disabled by a previous click
-            }); 
-
+            
+            // Attach event listeners to both radio and label
+            radioInput.addEventListener('click', handleSelection);
+            radioInput.addEventListener('change', handleSelection);
+            
+            // Also attach to the label to ensure all clicks are captured
+            label.addEventListener('click', (e) => {
+                if (answerSelected) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else {
+                    // Only handle if not already handled by radio
+                    if (!radioInput.checked) {
+                        handleSelection(e);
+                    }
+                }
+            });
+            
+            // Attach to the container too for extra security
+            optionContainer.addEventListener('click', (e) => {
+                if (answerSelected) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+            });
 
             optionContainer.appendChild(radioInput);
             optionContainer.appendChild(label);
-            if (this.elements.answersContainer) this.elements.answersContainer.appendChild(optionContainer);
+            form.appendChild(optionContainer);
         });
+        
+        // Add the form to the answers container
+        if (this.elements.answersContainer) this.elements.answersContainer.appendChild(form);
         if (this.elements.answersContainer) this.elements.answersContainer.style.display = 'block';
     }
 
     showAnswerFeedback(result) {
-        // const buttons = this.elements.answersContainer.querySelectorAll('button'); // Old
-        const radioContainers = this.elements.answersContainer.querySelectorAll('.answer-option-container');
+        // Get the containers from within the form we created
+        const form = this.elements.answersContainer.querySelector('form');
+        if (!form) {
+            console.error("Could not find form in answers container");
+            return;
+        }
+        
+        const radioContainers = form.querySelectorAll('.answer-option-container');
 
         radioContainers.forEach((container, i) => {
             const radio = container.querySelector('.answer-radio-input');
-            const label = container.querySelector('.answer-radio-label');
-            if (radio) radio.disabled = true;
+            if (radio) {
+                radio.disabled = true; // Ensure all radios are disabled (should already be from handleSelection)
+            }
             
-            if (label) {
-                // Clear previous feedback classes
-                label.classList.remove('correct', 'incorrect');
-                container.classList.remove('correct-container', 'incorrect-container');
+            // Clear ALL specific feedback styling classes first to prevent conflicts
+            container.classList.remove('selected-incorrect', 'actual-correct', 'other-incorrect-dimmed');
+            // Also remove older, more generic classes if they were somehow still there or applied elsewhere
+            container.classList.remove('correct-container', 'incorrect-container');
 
-                if (i === result.correctIndex) {
-                    // label.classList.add('correct'); // Styling the label text
-                    container.classList.add('correct-container'); // Styling the container
-                }
-                if (i === result.selectedIndex && !result.correct) {
-                    // label.classList.add('incorrect');
-                    container.classList.add('incorrect-container');
+            if (i === result.correctIndex) {
+                // This is the actual correct answer, regardless of user selection
+                container.classList.add('actual-correct');
+            } else {
+                // This is an incorrect answer option
+                if (result.selectedIndex === i) {
+                    // User selected this incorrect option
+                    container.classList.add('selected-incorrect');
+                } else {
+                    // This is an incorrect option that the user did NOT select
+                    container.classList.add('other-incorrect-dimmed');
                 }
             }
         });
 
         if (this.elements.feedbackMessage) {
-            this.elements.feedbackMessage.textContent = result.correct ? `Correct! +${result.pointsAwarded} points` : 'Incorrect.';
-            this.elements.feedbackMessage.className = result.correct ? 'correct' : 'incorrect';
+            if (result.gameOver) {
+                // Game is over, show different feedback
+                this.elements.feedbackMessage.textContent = result.correct ? 'Correct!' : 'Incorrect.';
+                this.elements.feedbackMessage.className = result.correct ? 'correct' : 'incorrect';
+            } else {
+                this.elements.feedbackMessage.textContent = result.correct ? `Correct! +${result.pointsAwarded} points` : 'Incorrect.';
+                this.elements.feedbackMessage.className = result.correct ? 'correct' : 'incorrect';
+            }
         }
         if (this.elements.continueButton) this.elements.continueButton.style.display = 'block';
     }
@@ -453,8 +571,18 @@ class UIController {
         this.elements.feedbackMessage.innerHTML = '';
         this.elements.feedbackMessage.className = '';
         this.elements.continueButton.style.display = 'none';
-        this.elements.answersContainer.innerHTML = '';
-        this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
+        this.elements.answersContainer.innerHTML = ''; // This will clear the form, radio buttons, and lock overlay
+        
+        // Check if the game is over and show congratulations message
+        const gameState = this.gameLogic.getDisplayState();
+        if (gameState.gameOver) {
+            this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${gameState.finalScore}`;
+        } else {
+            this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
+        }
+        
+        const pointsDisplayValue = document.getElementById('question-points-value');
+        if (pointsDisplayValue) pointsDisplayValue.textContent = '0';
         
         this.gameLogic.continueAfterQuestion(); // This will update display and valid moves
     }

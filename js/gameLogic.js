@@ -24,12 +24,18 @@ class GameLogic {
         this.gameStarted = false;
         this.gameEnded = false;
         this.questionActive = false;
+        this.gameOver = false; // New flag for noble gas reached state
+        this.finalScore = 0; // Store calculated final score
+        
+        // Debug flag to control testing features
+        this.debugMode = false;
         
         this.currentSeries = null; // null, 'lanthanide', or 'actinide'
         this.seriesProgress = new Set(); // Set of atomic numbers visited in the current series
         
         this.unseenQuestionIndices = {}; // { contextKey: Set of original indices for unseen questions }
         this.failedQuestionIndices = {}; // { contextKey: Set of original indices for failed questions }
+        this.lastFailedQuestionOriginalIndexByContext = {}; // { contextKey: originalIndex }
 
         this.currentContextQuestions = []; // Holds questions for the current period/series
         this.currentContextKey = ''; // e.g. 'period1', 'lanthanide'
@@ -46,6 +52,25 @@ class GameLogic {
         this.resetGame(); // Initialize/re-initialize state
     }
 
+    // Debug method to trigger end screen immediately
+    debugSkipToEndScreen() {
+        // Set some reasonable values for testing
+        this.score = 100;
+        this.turns = 10;
+        this.questionsCorrect = 8;
+        this.questionsAttempted = 10;
+        
+        // End the game with a "win" state
+        this.endGame(true);
+    }
+    
+    // Toggle debug mode on/off
+    toggleDebugMode() {
+        this.debugMode = !this.debugMode;
+        console.log(`DEBUG MODE: ${this.debugMode ? 'ON' : 'OFF'}`);
+        return this.debugMode;
+    }
+
     resetGame() {
         this.gameActive = false;
         this.currentElement = null;
@@ -58,14 +83,20 @@ class GameLogic {
         this.gameStarted = false;
         this.gameEnded = false;
         this.questionActive = false;
+        this.gameOver = false;
+        this.finalScore = 0;
+        // Don't reset debugMode flag so it persists between game resets
+        
         this.currentSeries = null;
         this.seriesProgress.clear();
         this.unseenQuestionIndices = {};
         this.failedQuestionIndices = {};
+        this.lastFailedQuestionOriginalIndexByContext = {};
         this.currentContextQuestions = [];
         this.currentContextKey = '';
         this.visitedMainTableSymbols.clear();
         this.pendingMoveTargetElement = null;
+        // We don't reset debug mode on game reset
 
         questionData.clearCache();
         if (this.onUpdateDisplay) {
@@ -77,6 +108,11 @@ class GameLogic {
         this.resetGame(); // Ensure clean state
         this.gameStarted = true;
         this.gameActive = true; // Game is active once started
+        
+        // Log debug mode status when game starts
+        if (this.debugMode) {
+            console.log("DEBUG MODE IS ACTIVE - End screen will appear after your first move");
+        }
         
         const element = periodicTableData.elements.find(e => e.symbol === startingElementSymbol);
         if (element) {
@@ -373,27 +409,51 @@ class GameLogic {
             return null;
         }
 
-        let poolToUse = null;
         let indicesSet = null;
+        let randomOriginalIndex = -1; // Initialize with a value indicating not found
 
         const unseenIndices = this.unseenQuestionIndices[this.currentContextKey];
         if (unseenIndices && unseenIndices.size > 0) {
             console.log(`[GameLogic._getQuestionFromPool] Trying unseen questions for ${this.currentContextKey}. Count: ${unseenIndices.size}`);
             indicesSet = unseenIndices;
+            const availableIndicesArray = Array.from(indicesSet);
+            randomOriginalIndex = availableIndicesArray[Math.floor(Math.random() * availableIndicesArray.length)];
         } else {
             const failedIndices = this.failedQuestionIndices[this.currentContextKey];
             if (failedIndices && failedIndices.size > 0) {
                 console.log(`[GameLogic._getQuestionFromPool] Trying failed questions for ${this.currentContextKey}. Count: ${failedIndices.size}`);
                 indicesSet = failedIndices;
+                let availableFailedIndicesArray = Array.from(indicesSet);
+                const lastFailedIdx = this.lastFailedQuestionOriginalIndexByContext[this.currentContextKey];
+
+                if (availableFailedIndicesArray.length > 1 && lastFailedIdx !== undefined && availableFailedIndicesArray.includes(lastFailedIdx)) {
+                    // Try to pick a different one
+                    const filteredArray = availableFailedIndicesArray.filter(idx => idx !== lastFailedIdx);
+                    if (filteredArray.length > 0) { // Ensure filter didn't empty the array if it only contained lastFailedIdx (which is covered by length > 1 check)
+                       availableFailedIndicesArray = filteredArray;
+                    } 
+                    // If filter results in empty (shouldn't if length > 1 and it contained lastFailedIdx), it will pick randomly from the original list below
+                    // but this scenario is less likely due to length > 1. More robustly, if filteredArray.length IS 0, revert to original.
+                    // For now, if filteredArray is non-empty, use it.
+                }
+                // If availableFailedIndicesArray is still the original or filtered (and non-empty)
+                if (availableFailedIndicesArray.length > 0) {
+                    randomOriginalIndex = availableFailedIndicesArray[Math.floor(Math.random() * availableFailedIndicesArray.length)];
+                } else if (Array.from(indicesSet).length > 0) { // Fallback if filtering somehow led to an empty array but original set was not empty
+                    const originalFailedArray = Array.from(indicesSet);
+                    randomOriginalIndex = originalFailedArray[Math.floor(Math.random() * originalFailedArray.length)];
+                }
+
             } else {
                 console.log("All questions exhausted for context:", this.currentContextKey);
                 return null; // No questions left in any pool for this context
             }
         }
 
-        // Pick a random index from the chosen set
-        const availableIndicesArray = Array.from(indicesSet);
-        const randomOriginalIndex = availableIndicesArray[Math.floor(Math.random() * availableIndicesArray.length)];
+        if (randomOriginalIndex === -1 || randomOriginalIndex === undefined) {
+             console.warn("Could not select a question index for context:", this.currentContextKey, "Unseen size:", unseenIndices ? unseenIndices.size : 'N/A', "Failed size:", this.failedQuestionIndices[this.currentContextKey] ? this.failedQuestionIndices[this.currentContextKey].size : 'N/A');
+             return null; // Safety check
+        }
         
         const question = this.currentContextQuestions[randomOriginalIndex];
         // We don't remove it from the set here. Removal/transfer happens in handleAnswer.
@@ -403,8 +463,7 @@ class GameLogic {
     }
 
     async processMove(targetElementSymbol, isCorrect) {
-        this.questionActive = false; // Question is no longer active
-        this.currentQuestion = null; // Clear the current question
+        // this.questionActive = false; // REMOVED: Question remains active during feedback until "Continue"
         this.pendingMoveTargetElement = null; // Clear preview once move is processed
 
         const targetElement = this.currentQuestionTarget || periodicTableData.elements.find(el => el.symbol === targetElementSymbol);
@@ -419,24 +478,18 @@ class GameLogic {
         }
 
         if (isCorrect) {
-            this.score += 10; // Or some other scoring logic
-            this.questionsCorrect++;
-            
-            // Exit series mode if moving from Lu to Hf or Lr to Rf
-            const currentAtomic = this.currentElement.atomicNumber;
-            if (this.currentSeries === 'lanthanide' && currentAtomic === LANTHANIDE_ATOMIC_NUMBERS.end && targetElement.atomicNumber === 72) { // Lu to Hf
-                this.currentSeries = null;
-                this.seriesProgress.clear();
-                this.visitedMainTableSymbols.add(this.currentElement.symbol); // Mark Lu as visited on main concept
-                this.visitedMainTableSymbols.add(targetElement.symbol);    // Mark Hf as visited
-            } else if (this.currentSeries === 'actinide' && currentAtomic === ACTINIDE_ATOMIC_NUMBERS.end && targetElement.atomicNumber === 104) { // Lr to Rf
-                this.currentSeries = null;
-                this.seriesProgress.clear();
-                this.visitedMainTableSymbols.add(this.currentElement.symbol); // Mark Lr
-                this.visitedMainTableSymbols.add(targetElement.symbol);    // Mark Rf
-            }
+            // Score is updated in handleAnswer now
+            // this.questionsCorrect++; // This is also incremented in handleAnswer if we move it there, or keep here.
+                                    // Let's keep questionsCorrect increment here as it relates to a *successful move process*.
             
             this.setPositionByElement(targetElementSymbol); // This handles setting currentElement and pushing to pathTaken
+
+            // DEBUG: Skip to end screen after first move if debug mode is enabled
+            if (this.debugMode) {
+                console.log("DEBUG: Skipping to end screen after move");
+                this.debugSkipToEndScreen();
+                return;
+            }
 
             // Series handling should occur AFTER currentElement is updated by setPositionByElement
             // and primarily focus on setting this.currentSeries and managing seriesProgress.
@@ -470,9 +523,6 @@ class GameLogic {
                 }
                 this.visitedMainTableSymbols.add(newCurrentElement.symbol);
             }
-
-            this.score += this.currentQuestion ? (this.currentQuestion.points || 1) : 1; // Add points based on question
-            this.questionsCorrect++;
 
             // Check for win condition
             if (newCurrentElement.group === 18 && newCurrentElement.category === 'noble-gas') {
@@ -518,11 +568,8 @@ class GameLogic {
     }
 
     continueAfterQuestion() { // Called by UI after question is dismissed/answered
-        // This function's role might change slightly.
-        // If an answer was processed, processMove would have already updated state.
-        // This is more for just hiding the question UI and showing updated game state.
-
-        this.questionActive = false; // Ensure question is marked as inactive
+        this.questionActive = false; // Question is now officially inactive.
+        this.currentQuestion = null; // Clear the question.
         this.pendingMoveTargetElement = null; // Clear preview when continuing after question
 
         // The game state (currentElement, path, score, turns) should have been updated by processMove.
@@ -541,6 +588,11 @@ class GameLogic {
     endGame(playerWon) {
         this.gameActive = false;
         this.gameEnded = true;
+        this.gameOver = playerWon;
+        
+        // Calculate final score rounded to 4 decimal places
+        this.finalScore = (this.score / this.turns).toFixed(4);
+        
         if (this.onEndGame) {
             this.onEndGame(playerWon, this.score, this.turns);
         }
@@ -565,7 +617,9 @@ class GameLogic {
             seriesProgress: new Set(this.seriesProgress), // Pass a copy
             visitedMainTableSymbols: new Set(this.visitedMainTableSymbols), // Pass a copy
             pathTaken: [...this.pathTaken], // Pass a copy
-            pendingMoveTargetElement: this.pendingMoveTargetElement // Include in state
+            pendingMoveTargetElement: this.pendingMoveTargetElement, // Include in state
+            gameOver: this.gameOver, // Include gameOver flag
+            finalScore: this.finalScore // Include final score
         };
     }
 
@@ -575,6 +629,18 @@ class GameLogic {
 
     async handleTileClick(elementSymbol) {
         console.log('[GameLogic.handleTileClick] Called for symbol:', elementSymbol, 'questionActive:', this.questionActive);
+        
+        // Special handling for game over state (noble gas reached)
+        if (this.gameOver && !this.questionActive) {
+            console.log('[GameLogic.handleTileClick] Game over but allowing click for element exploration');
+            const targetElement = periodicTableData.elements.find(el => el.symbol === elementSymbol);
+            if (targetElement) {
+                this.currentQuestionTarget = targetElement;
+                await this.askQuestion(targetElement);
+            }
+            return;
+        }
+        
         if (!this.gameActive || this.questionActive || this.gameEnded) {
             console.log('[GameLogic.handleTileClick] Exiting: Game not active, question active, or game ended.');
             return;
@@ -609,12 +675,28 @@ class GameLogic {
 
     async handleAnswer(selectedIndex) {
         console.log(`[GameLogic.handleAnswer] Called with selectedIndex: ${selectedIndex}, questionActive: ${this.questionActive}`);
-        if (!this.questionActive || !this.currentQuestion || this.gameEnded) {
-            console.warn("[GameLogic.handleAnswer] Exiting: Question not active, no current question, or game ended.");
+        if (!this.questionActive || !this.currentQuestion) {
+            console.warn("[GameLogic.handleAnswer] Exiting: Question not active or no current question.");
             return null; 
         }
+        
+        // Special handling for game over state (noble gas reached)
+        if (this.gameOver) {
+            const correctAnswerIndex = this.currentQuestion.correct;
+            const isCorrect = selectedIndex === correctAnswerIndex;
+            
+            // Don't update score or move - just track for UI feedback
+            return {
+                correct: isCorrect,
+                correctIndex: correctAnswerIndex,
+                selectedIndex: selectedIndex,
+                pointsAwarded: 0,
+                gameOver: true
+            };
+        }
 
-        this.questionActive = false; 
+        // NOTE: this.questionActive remains true throughout this function and processMove.
+        // It will be set to false by continueAfterQuestion().
 
         this.turns++;
         this.questionsAttempted++;
@@ -627,11 +709,13 @@ class GameLogic {
         const originalIndexOfAnsweredQuestion = this.currentQuestion.originalIndexInContext;
         if (originalIndexOfAnsweredQuestion === undefined) {
             console.error("[GameLogic.handleAnswer] Original index of question not found. Question management might be broken.");
-            // Fallback or error handling - perhaps cannot update question pools correctly
         } else {
             const contextKey = this.currentContextKey;
             if (isCorrect) {
+                this.questionsCorrect++; // Increment successful answers
                 pointsAwarded = this.currentQuestion.points || 1; 
+                this.score += pointsAwarded; // Update score here
+
                 // Remove from both pools upon correct answer
                 if (this.unseenQuestionIndices[contextKey]) {
                     this.unseenQuestionIndices[contextKey].delete(originalIndexOfAnsweredQuestion);
@@ -639,8 +723,13 @@ class GameLogic {
                 if (this.failedQuestionIndices[contextKey]) {
                     this.failedQuestionIndices[contextKey].delete(originalIndexOfAnsweredQuestion);
                 }
-                console.log(`[GameLogic.handleAnswer] Question (index ${originalIndexOfAnsweredQuestion}) answered correctly. Removed from pools for context ${contextKey}.`);
+                // If it was correct, it can't be the "last failed"
+                delete this.lastFailedQuestionOriginalIndexByContext[contextKey]; 
+                console.log(`[GameLogic.handleAnswer] Question (index ${originalIndexOfAnsweredQuestion}) answered correctly. Score: ${this.score}. Removed from pools for context ${contextKey}.`);
             } else {
+                // Mark as last failed for this context
+                this.lastFailedQuestionOriginalIndexByContext[contextKey] = originalIndexOfAnsweredQuestion;
+
                 // Move from unseen to failed, or keep in failed
                 if (this.unseenQuestionIndices[contextKey] && this.unseenQuestionIndices[contextKey].has(originalIndexOfAnsweredQuestion)) {
                     this.unseenQuestionIndices[contextKey].delete(originalIndexOfAnsweredQuestion);
@@ -651,12 +740,10 @@ class GameLogic {
                     // Already in failed, keep it there.
                     console.log(`[GameLogic.handleAnswer] Question (index ${originalIndexOfAnsweredQuestion}) answered incorrectly again. Stays in failed for context ${contextKey}.`);
                 } else if (!this.failedQuestionIndices[contextKey]){
-                    // Should not happen if unseen also doesn't have it, but as a safeguard for failed pool init
                     this.failedQuestionIndices[contextKey] = new Set();
                     this.failedQuestionIndices[contextKey].add(originalIndexOfAnsweredQuestion);
+                    console.warn(`[GameLogic.handleAnswer] Question (index ${originalIndexOfAnsweredQuestion}) answered incorrectly. Failed pool for ${contextKey} was missing, created and added.`);
                 } else {
-                     // If it wasn't in unseen, and not in failed, it implies an issue or it was already correctly answered.
-                     // For safety, if it's an incorrect answer to a question not in unseen, add to failed if not already there.
                      if (!this.failedQuestionIndices[contextKey].has(originalIndexOfAnsweredQuestion)) {
                         this.failedQuestionIndices[contextKey].add(originalIndexOfAnsweredQuestion);
                         console.warn(`[GameLogic.handleAnswer] Question (index ${originalIndexOfAnsweredQuestion}) answered incorrectly. Was not in unseen, added to failed for context ${contextKey}. State might be unusual.`);
@@ -664,32 +751,36 @@ class GameLogic {
                 }
             }
         }
-        // Clear the temporary property
+        
+        const questionTargetSymbolForMove = this.currentQuestionTarget ? this.currentQuestionTarget.symbol : null;
+        // Clear the temporary property from the question object that was used for pool management.
         if (this.currentQuestion) delete this.currentQuestion.originalIndexInContext;
+        // this.currentQuestion itself is cleared by continueAfterQuestion()
 
-        await this.processMove(this.currentQuestionTarget ? this.currentQuestionTarget.symbol : null, isCorrect);
+        // this.questionActive = false; // Explicitly NOT setting this false here.
+
+        await this.processMove(questionTargetSymbolForMove, isCorrect);
         
         // Return result for UI to display feedback
-        // processMove itself doesn't return this structure, so we construct it here.
-        // The state (score, currentElement etc.) is updated by processMove via its calls to setPosition, etc.
-        // The UI will then re-render based on the new overall game state from getDisplayState() via continueAfterQuestion -> onUpdateDisplay
+        // The currentQuestion object is still available here for the UI to use for feedback if needed.
+        // But the result object should contain all necessary info for feedback.
 
-        // If the game ended within processMove (e.g. reached noble gas), this.gameEnded will be true.
-        // The onEndGame callback would have been triggered from processMove/endGame.
-        // So, we don't need to do special endgame handling here in handleAnswer's return,
-        // as the UI flow via continueButton -> continueAfterQuestion -> updateDisplay will catch the gameEnded state.
         if (this.gameEnded) {
              console.log("[GameLogic.handleAnswer] Game has ended after processMove.");
-            return null; // No typical feedback result if game ended.
+             // this.currentQuestion = null; // Clear if game ended
+            return null; 
         }
+        
+        // this.currentQuestion = null; // Clear current question *after* its details are used for feedback and processing
+                                    // This is effectively done when a new question is asked or game continues.
 
         return {
             correct: isCorrect,
             correctIndex: correctAnswerIndex,
             selectedIndex: selectedIndex,
-            pointsAwarded: pointsAwarded // Only relevant if correct
+            pointsAwarded: pointsAwarded 
         };
     }
 }
 
-export default GameLogic; 
+export default GameLogic;
