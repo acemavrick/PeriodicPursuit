@@ -590,12 +590,20 @@ class GameLogic {
         this.gameEnded = true;
         this.gameOver = playerWon;
         
-        // Calculate final score rounded to 4 decimal places
-        this.finalScore = (this.score / this.turns).toFixed(4);
+        // Calculate final score as a number (not as a string)
+        this.finalScore = this.turns > 0 ? parseFloat((this.score / this.turns).toFixed(4)) : 0;
+        
+        console.log('Game ended:', playerWon ? 'Player won!' : 'Game ended otherwise', 
+                    'Final score:', this.finalScore, 
+                    'Game state:', this.gameActive, this.gameEnded, this.gameOver);
         
         if (this.onEndGame) {
+            console.log('Calling onEndGame callback');
             this.onEndGame(playerWon, this.score, this.turns);
+        } else {
+            console.error('onEndGame callback not defined');
         }
+        
         if (this.onUpdateDisplay) { // Final display update
             this.onUpdateDisplay(this.getDisplayState());
         }

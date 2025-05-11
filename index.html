@@ -5,9 +5,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Periodic Pursuit: Elemental Ascent</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/game-over-overlay.css">
 </head>
 <body>
     <div id="game-container">
+        <!-- Game Over Overlay -->
+        <div id="game-over-overlay">
+            <div id="game-over-content">
+                <h2 id="game-over-message">Congratulations! You reached a noble gas!</h2>
+                <div id="game-over-score">Final Score: <span id="overlay-final-score">0</span></div>
+                
+                <!-- Add this container for the visual path display -->
+                <div id="path-visualization-container">
+                    <h3>Your Journey:</h3>
+                    <div id="mini-periodic-table"></div>
+                </div>
+                
+                <button id="restart-from-overlay" class="button primary-button">Play Again</button>
+            </div>
+        </div>
+        
         <!-- Start Screen -->
         <div id="start-screen">
             <h1>Periodic Pursuit: Elemental Ascent</h1>

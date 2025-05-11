@@ -32,6 +32,11 @@ class UIController {
             // gameEndMessage: document.getElementById('game-end-message'), // This ID is not in index.html, endgame screen uses final-points, final-turns etc.
             // Let's use a general endgame screen element if needed for show/hide, or rely on specific content updates.
             endgameScreen: document.getElementById('endgame-screen'), // For showing/hiding the whole endgame block
+            // Game over overlay elements
+            gameOverOverlay: document.getElementById('game-over-overlay'),
+            gameOverMessage: document.getElementById('game-over-message'),
+            overlayFinalScore: document.getElementById('overlay-final-score'),
+            restartFromOverlay: document.getElementById('restart-from-overlay'),
             // Corrected ID to match index.html
             startSelectionContainer: document.getElementById('start-element-selection'), 
             // Add other UI elements as needed, e.g., for settings if re-added
@@ -49,6 +54,15 @@ class UIController {
         }
         if (this.elements.continueButton) {
             this.elements.continueButton.addEventListener('click', () => this.continueGame());
+        }            // Add event listener for the restart button in the game-over overlay
+        if (this.elements.restartFromOverlay) {
+            this.elements.restartFromOverlay.addEventListener('click', () => {
+                console.log('Restart from overlay button clicked');
+                window.location.reload();
+            });
+            console.log('Added event listener to restart-from-overlay button');
+        } else {
+            console.error('Restart from overlay button element not found');
         }
         
         // Ensure start screen is shown if elements are found
@@ -322,7 +336,10 @@ class UIController {
             }
             if (this.elements.questionText && !state.questionActive) { // Clear question text if no question
                 if (state.gameOver) {
-                    this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${state.finalScore}\nReload to play again, or click on more elements to get more questions!.`;
+                    // Handle finalScore regardless of whether it's already a string or a number
+                    const formattedScore = typeof state.finalScore === 'number' ? 
+                        state.finalScore.toFixed(4) : state.finalScore;
+                    this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${formattedScore}\nReload to play again, or click on more elements to get more questions!.`;
                 } else {
                     this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
                 }
@@ -576,7 +593,10 @@ class UIController {
         // Check if the game is over and show congratulations message
         const gameState = this.gameLogic.getDisplayState();
         if (gameState.gameOver) {
-            this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${gameState.finalScore}`;
+            // Handle finalScore regardless of whether it's already a string or a number
+            const formattedScore = typeof gameState.finalScore === 'number' ? 
+                gameState.finalScore.toFixed(4) : gameState.finalScore;
+            this.elements.questionText.innerHTML = `Congratulations! You reached a noble gas. Final score: ${formattedScore}`;
         } else {
             this.elements.questionText.innerHTML = 'Click on an adjacent element to move.';
         }
@@ -588,11 +608,230 @@ class UIController {
     }
 
     endGame(playerWon, score, turns) {
-        // gameLogic will set its state. updateDisplay will call showScreen('endgame')
-        // Here, we can just ensure gameLogic knows about the endgame details for its state.
-        // The actual display of score and turns on the endgame screen is handled by updateDisplay.
-        // No direct DOM manipulation for endgame stats here, as updateDisplay handles it when state.gameEnded is true.
-        // This method is called by gameLogic, primarily to trigger the UI state change via gameLogic's state.
+        // If player won by reaching a noble gas, show the game-over overlay
+        if (playerWon) {
+            // Get the final score from game state
+            const gameState = this.gameLogic.getDisplayState();
+            // Handle finalScore regardless of whether it's already a string or a number
+            const finalScore = typeof gameState.finalScore === 'number' ? 
+                gameState.finalScore.toFixed(4) : gameState.finalScore;
+            
+            // Update the overlay content
+            if (this.elements.overlayFinalScore) {
+                this.elements.overlayFinalScore.textContent = finalScore;
+            }
+            
+            // Create the mini periodic table with highlighted path
+            if (gameState.pathTaken && gameState.pathTaken.length > 0) {
+                this.createMiniPeriodicTable(gameState.pathTaken);
+                // Call drawPathConnections after a short delay to ensure the table is rendered
+                setTimeout(() => this.drawPathConnections(gameState.pathTaken), 100);
+            }
+            
+            // Show the game-over overlay
+            if (this.elements.gameOverOverlay) {
+                this.elements.gameOverOverlay.style.display = 'flex';
+                console.log('Game over overlay displayed');
+            } else {
+                console.error('Game over overlay element not found');
+            }
+        }
+        
+        // If player did not win (e.g., quit or lost, though current logic focuses on win)
+        // you might want to handle this case differently, perhaps showing a different message
+        // or not showing the path visualization. For now, it only shows on win.
+
+        // Hide the main game screen elements if they are not already hidden
+        if (this.elements.gameScreen && this.elements.gameScreen.style.display !== 'none') {
+            this.elements.gameScreen.style.display = 'none';
+        }
+        if (this.elements.questionScreen && this.elements.questionScreen.style.display !== 'none') {
+            this.elements.questionScreen.style.display = 'none';
+        }
+    }
+
+    createMiniPeriodicTable(pathTaken) {
+        const miniTableContainer = document.getElementById('mini-periodic-table');
+        if (!miniTableContainer) return;
+        
+        // Clear any existing content
+        miniTableContainer.innerHTML = '';
+        
+        // Ensure periodicTableData is available (it should be if imported correctly)
+        if (typeof periodicTableData === 'undefined' || !periodicTableData.mainTableLayout || !periodicTableData.elements) {
+            console.error("periodicTableData is not available or not structured as expected.");
+            return;
+        }
+        
+        // Use the same grid layout as the main table
+        periodicTableData.mainTableLayout.grid.forEach((row, rowIndex) => {
+            row.forEach((elementSymbol, colIndex) => {
+                const tile = document.createElement('div');
+                tile.className = 'mini-element-tile';
+                
+                if (elementSymbol) {
+                    tile.textContent = elementSymbol;
+                    tile.dataset.symbol = elementSymbol;
+                    
+                    // Check if this element is in the path
+                    if (pathTaken.includes(elementSymbol)) {
+                        tile.classList.add('path-element');
+                        
+                        // Mark start and end
+                        if (elementSymbol === pathTaken[0]) {
+                            tile.classList.add('path-start');
+                        } else if (elementSymbol === pathTaken[pathTaken.length - 1]) {
+                            tile.classList.add('path-end');
+                        }
+                    }
+                } else {
+                    tile.classList.add('empty');
+                }
+                
+                miniTableContainer.appendChild(tile);
+            });
+        });
+        
+        // Add lanthanides and actinides rows if they were visited or part of the path
+        const lanthanidePathElements = pathTaken.filter(symbol => {
+            const element = periodicTableData.elements.find(el => el.symbol === symbol);
+            return element && element.category === 'lanthanide';
+        });
+        
+        const actinidePathElements = pathTaken.filter(symbol => {
+            const element = periodicTableData.elements.find(el => el.symbol === symbol);
+            return element && element.category === 'actinide';
+        });
+
+        // A more robust check: display series if any element from that series is in the path
+        const shouldDisplayLanthanides = lanthanidePathElements.length > 0;
+        const shouldDisplayActinides = actinidePathElements.length > 0;
+
+        if (shouldDisplayLanthanides) {
+            this._createMiniSeriesRow(miniTableContainer, 'lanthanide', pathTaken);
+        }
+        
+        if (shouldDisplayActinides) {
+            this._createMiniSeriesRow(miniTableContainer, 'actinide', pathTaken);
+        }
+    }
+    
+    _createMiniSeriesRow(container, seriesType, pathTaken) {
+        // Ensure periodicTableData and its series are available
+        if (typeof periodicTableData === 'undefined' || !periodicTableData.lanthanides || !periodicTableData.actinides) {
+            console.error("periodicTableData series data is not available.");
+            return;
+        }
+
+        const seriesElements = seriesType === 'lanthanide' ? 
+            periodicTableData.lanthanides : periodicTableData.actinides;
+        
+        // Create spacer cells to align with the main table structure (approximate)
+        // For Lanthanides/Actinides, they usually appear below Group 3.
+        // The number of spacers might need adjustment based on your exact CSS grid for mini-periodic-table.
+        // Assuming 18 columns, and series starts effectively under column 3.
+        for (let i = 0; i < 2; i++) { // 2 spacer cells before the series starts
+            const spacer = document.createElement('div');
+            spacer.className = 'mini-element-tile empty';
+            container.appendChild(spacer);
+        }
+        
+        // Create series elements
+        seriesElements.forEach(element => {
+            // Validate element structure
+            if (!element || typeof element.symbol === 'undefined' || typeof element.atomicNumber === 'undefined') {
+                console.warn("Skipping invalid element in series data:", element);
+                return;
+            }
+            // Filter for the actual elements in the series range (La-Lu for Lanthanides, Ac-Lr for Actinides)
+            // This ensures we only add the 15 elements of each series.
+            const isLanthanideElement = seriesType === 'lanthanide' && element.atomicNumber >= 57 && element.atomicNumber <= 71;
+            const isActinideElement = seriesType === 'actinide' && element.atomicNumber >= 89 && element.atomicNumber <= 103;
+
+            if (isLanthanideElement || isActinideElement) {
+                const tile = document.createElement('div');
+                tile.className = 'mini-element-tile';
+                tile.textContent = element.symbol;
+                tile.dataset.symbol = element.symbol;
+                
+                if (pathTaken.includes(element.symbol)) {
+                    tile.classList.add('path-element');
+                    
+                    if (element.symbol === pathTaken[0]) {
+                        tile.classList.add('path-start');
+                    } else if (element.symbol === pathTaken[pathTaken.length - 1]) {
+                        tile.classList.add('path-end');
+                    }
+                }
+                container.appendChild(tile);
+            }
+        });
+        
+        // Calculate remaining spacer cells to fill up to 18 columns
+        // 2 (start spacers) + 15 (series elements) = 17. So 1 more spacer.
+        const remainingSpacers = 18 - 2 - seriesElements.filter(el => {
+             const isLanthanideElement = seriesType === 'lanthanide' && el.atomicNumber >= 57 && el.atomicNumber <= 71;
+             const isActinideElement = seriesType === 'actinide' && el.atomicNumber >= 89 && el.atomicNumber <= 103;
+             return isLanthanideElement || isActinideElement;
+        }).length;
+
+        for (let i = 0; i < remainingSpacers; i++) {
+            const spacer = document.createElement('div');
+            spacer.className = 'mini-element-tile empty';
+            container.appendChild(spacer);
+        }
+    }
+
+    drawPathConnections(pathTaken) {
+        const miniTable = document.getElementById('mini-periodic-table');
+        if (!miniTable || pathTaken.length < 2) return;
+        
+        // Get all tiles in the mini table that have a symbol (i.e., are not empty)
+        const allTiles = miniTable.querySelectorAll('.mini-element-tile[data-symbol]');
+        
+        // For each consecutive pair of elements in the path
+        for (let i = 0; i < pathTaken.length - 1; i++) {
+            const currentSymbol = pathTaken[i];
+            const nextSymbol = pathTaken[i + 1];
+            
+            // Find the corresponding tiles
+            const currentTile = Array.from(allTiles).find(tile => tile.dataset.symbol === currentSymbol);
+            const nextTile = Array.from(allTiles).find(tile => tile.dataset.symbol === nextSymbol);
+            
+            if (currentTile && nextTile) {
+                // Get the positions relative to the miniTable container
+                const currentRect = currentTile.getBoundingClientRect();
+                const nextRect = nextTile.getBoundingClientRect();
+                const tableRect = miniTable.getBoundingClientRect();
+                
+                // Calculate center points relative to the table's top-left corner
+                const currentX = currentRect.left - tableRect.left + currentRect.width / 2;
+                const currentY = currentRect.top - tableRect.top + currentRect.height / 2;
+                const nextX = nextRect.left - tableRect.left + nextRect.width / 2;
+                const nextY = nextRect.top - tableRect.top + nextRect.height / 2;
+                
+                // Calculate line properties
+                const deltaX = nextX - currentX;
+                const deltaY = nextY - currentY;
+                const length = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+                const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+                
+                // Create line element
+                const line = document.createElement('div');
+                line.className = 'path-line';
+                line.style.width = `${length}px`;
+                line.style.height = '2px'; // Line thickness
+                line.style.left = `${currentX}px`;
+                line.style.top = `${currentY - 1}px`; // Adjust top for line thickness to center it
+                line.style.transform = `rotate(${angle}deg)`;
+                
+                // Add to mini table
+                miniTable.appendChild(line);
+            } else {
+                if (!currentTile) console.warn(`Path connection: Could not find tile for current symbol ${currentSymbol}`);
+                if (!nextTile) console.warn(`Path connection: Could not find tile for next symbol ${nextSymbol}`);
+            }
+        }
     }
 
     // This method is no longer directly used by the restart button if it simply reloads.
@@ -619,4 +858,4 @@ class UIController {
     }
 }
 
-export default UIController; 
+export default UIController;
