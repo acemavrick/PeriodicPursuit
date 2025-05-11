@@ -27,9 +27,6 @@ class GameLogic {
         this.gameOver = false; // New flag for noble gas reached state
         this.finalScore = 0; // Store calculated final score
         
-        // Debug flag to control testing features
-        this.debugMode = false;
-        
         this.currentSeries = null; // null, 'lanthanide', or 'actinide'
         this.seriesProgress = new Set(); // Set of atomic numbers visited in the current series
         
@@ -52,25 +49,6 @@ class GameLogic {
         this.resetGame(); // Initialize/re-initialize state
     }
 
-    // Debug method to trigger end screen immediately
-    debugSkipToEndScreen() {
-        // Set some reasonable values for testing
-        this.score = 100;
-        this.turns = 10;
-        this.questionsCorrect = 8;
-        this.questionsAttempted = 10;
-        
-        // End the game with a "win" state
-        this.endGame(true);
-    }
-    
-    // Toggle debug mode on/off
-    toggleDebugMode() {
-        this.debugMode = !this.debugMode;
-        console.log(`DEBUG MODE: ${this.debugMode ? 'ON' : 'OFF'}`);
-        return this.debugMode;
-    }
-
     resetGame() {
         this.gameActive = false;
         this.currentElement = null;
@@ -85,7 +63,6 @@ class GameLogic {
         this.questionActive = false;
         this.gameOver = false;
         this.finalScore = 0;
-        // Don't reset debugMode flag so it persists between game resets
         
         this.currentSeries = null;
         this.seriesProgress.clear();
@@ -96,7 +73,6 @@ class GameLogic {
         this.currentContextKey = '';
         this.visitedMainTableSymbols.clear();
         this.pendingMoveTargetElement = null;
-        // We don't reset debug mode on game reset
 
         questionData.clearCache();
         if (this.onUpdateDisplay) {
@@ -108,11 +84,6 @@ class GameLogic {
         this.resetGame(); // Ensure clean state
         this.gameStarted = true;
         this.gameActive = true; // Game is active once started
-        
-        // Log debug mode status when game starts
-        if (this.debugMode) {
-            console.log("DEBUG MODE IS ACTIVE - End screen will appear after your first move");
-        }
         
         const element = periodicTableData.elements.find(e => e.symbol === startingElementSymbol);
         if (element) {
@@ -478,18 +449,7 @@ class GameLogic {
         }
 
         if (isCorrect) {
-            // Score is updated in handleAnswer now
-            // this.questionsCorrect++; // This is also incremented in handleAnswer if we move it there, or keep here.
-                                    // Let's keep questionsCorrect increment here as it relates to a *successful move process*.
-            
             this.setPositionByElement(targetElementSymbol); // This handles setting currentElement and pushing to pathTaken
-
-            // DEBUG: Skip to end screen after first move if debug mode is enabled
-            if (this.debugMode) {
-                console.log("DEBUG: Skipping to end screen after move");
-                this.debugSkipToEndScreen();
-                return;
-            }
 
             // Series handling should occur AFTER currentElement is updated by setPositionByElement
             // and primarily focus on setting this.currentSeries and managing seriesProgress.

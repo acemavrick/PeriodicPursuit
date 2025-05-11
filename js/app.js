@@ -45,9 +45,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const ui = new UIController(null); // Pass null for gameLogic initially
     const game = new GameLogic(ui);    // Create GameLogic, passing the UIController instance
     ui.gameLogic = game;               // Now, set the gameLogic instance on the UIController
-    
-    // Make game instance accessible globally for debugging
-    window.gameLogic = game;
 
     // Setup callbacks from GameLogic to UIController methods
     game.onUpdateDisplay = (state) => ui.updateDisplay(state);

@@ -235,6 +235,17 @@ body {
     gap: 1rem;
 }
 
+/* Game Info section specific styling for the outer white box */
+#game-info {
+    background-color: var(--surface-color); /* White background */
+    padding: 1rem; /* Padding for the outer box */
+    border-radius: var(--border-radius); /* Rounded corners for the outer box */
+    box-shadow: var(--shadow-sm); /* Subtle shadow for the outer box */
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem; /* Space between inner shaded boxes (info-item) */
+}
+
 .sidebar-section {
     background-color: var(--surface-color);
     padding: 1rem;
@@ -252,8 +263,11 @@ body {
 .info-item {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 0.5rem;
     font-size: 0.9rem;
+    background-color: var(--surface-color-alt); /* Shaded background for each row */
+    padding: 0.75rem 1rem; /* Padding within each row's box */
+    border-radius: calc(var(--border-radius) / 1.5); /* Slightly smaller radius for inner boxes */
+    border: 1px solid var(--border-color-light); /* Subtle border for inner boxes */
 }
 
 .info-item span:first-child {
@@ -495,4 +509,4 @@ body {
 @media (max-width: 480px) {
     :root { --element-size-base: 35px; }
     .element-tile .atomic-number { font-size: 0.5em; top: 1px; left: 1px;}
-} 
+}
