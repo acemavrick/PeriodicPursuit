@@ -56,7 +56,7 @@ export const questions = [
   },
   {
     text: "Calculate the mass of 2.00 mol of carbon dioxide (CO₂). (C=12.01, O=16.00)",
-    options: ["44.01 g", "88.02 g", "22.01 g", "110.03 g", "36.00 g"],
+    options: ["44.01 g", "88.02 g", "22.01 g", "110.03 g"],
     correct: 1,
     points: 20
   },
@@ -100,6 +100,12 @@ export const questions = [
     text: "Which Period 2 element’s hydride is a strong base (e.g., LiH + H₂O→ LiOH + H₂)?",
     options: ["Lithium", "Beryllium", "Boron", "Neon"],
     correct: 0,
+    points: 15
+  }
+  {
+    text: "What happens to Hydrogen at ~2 million atm pressure?
+    options: ["It becomes a superconductor", "It solidifies into a metal", "It turns into Helium", "It emits antimatter"]
+    correct: 1,
     points: 15
   }
 ];
