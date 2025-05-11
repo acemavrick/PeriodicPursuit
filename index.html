@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Periodic Pursuit: Elemental Ascent</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <!-- Start Screen -->
+        <div id="start-screen">
+            <h1>Periodic Pursuit: Elemental Ascent</h1>
+            <div class="description">
+                <p>Navigate the periodic table by answering chemistry questions to reach a noble gas (Group 18).</p>
+            </div>
+            <button id="start-game-button" class="button primary-button">Start Game</button>
+        </div>
+        
+        <!-- Element Selection Screen -->
+        <div id="start-element-selection" style="display: none;">
+            <h2>Choose your starting element:</h2>
+            <!-- Element tiles will be dynamically added here -->
+        </div>
+        
+        <!-- Main Game Screen -->
+        <div id="game-screen" style="display: none;">
+            <div id="periodic-table-container">
+                <div id="periodic-table"></div>
+            </div>
+            <div id="sidebar">
+                <h1 id="game-title-sidebar">Periodic Pursuit</h1>
+                <div id="game-info">
+                    <div class="info-item">
+                        <span>Score:</span>
+                        <span id="score">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Turns:</span>
+                        <span id="turns">0</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Current Element:</span>
+                        <span id="current-element">-</span>
+                    </div>
+                    <div class="info-item" id="current-series-container" style="display: none;">
+                        <span>Current Series:</span>
+                        <span id="current-series-name">-</span>
+                    </div>
+                    <div id="powerups" style="display: none;"></div> <!-- Hidden for now, can be re-enabled later -->
+                </div>
+                
+                <div id="question-container">
+                    <div id="checkpoint-notice" class="checkpoint-notice" style="display: none;">
+                        <!-- This might be repurposed or removed based on new question logic -->
+                    </div>
+                    <div id="question-timer-display" style="display: none;">Time: <span id="timer-value">30</span>s</div>
+                    <div class="question-text" id="question-text"></div>
+                    <div class="answer-options" id="answer-options"></div>
+                    <div id="feedback"></div>
+                    <button id="continue-button" class="button primary-button" style="display: none;">Continue</button>
+                </div>
+                
+                <div id="endgame-screen" style="display: none;">
+                    <h2>Congratulations!</h2>
+                    <div class="endgame-stat">Total Points: <span id="final-points">0</span></div>
+                    <div class="endgame-stat">Turns Taken: <span id="final-turns">0</span></div>
+                    <div class="endgame-stat">Final Score: <span id="final-score">0</span></div>
+                    <div class="endgame-stat">Questions Correct: <span id="questions-correct">0</span> / <span id="questions-attempted">0</span></div>
+                </div>
+                
+                <!-- <button id="restart-game-button" class="button primary-button">Restart Game</button> -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Load scripts using type="module" -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
