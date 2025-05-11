@@ -184,6 +184,8 @@ class GameLogic {
                 this.unseenQuestionIndices[this.currentContextKey] = new Set(
                     this.currentContextQuestions.map((_, index) => index)
                 );
+            }
+            if (!this.failedQuestionIndices[this.currentContextKey]) {
                 this.failedQuestionIndices[this.currentContextKey] = new Set();
             }
         } catch (error) {
@@ -333,20 +335,22 @@ class GameLogic {
             try {
                 this.currentContextQuestions = await questionData.getQuestionsForContext(periodNumber, isLanthanideContext, isActinideContext);
                 
-                // Initialize question pools for this new context if they don't exist
-                if (!this.unseenQuestionIndices[this.currentContextKey] && !this.failedQuestionIndices[this.currentContextKey]) {
+                // Initialize question pools for this new context if they don't exist.
+                // If unseen pool for this context doesn't exist, create and populate it
+                // from the freshly loaded questions.
+                if (!this.unseenQuestionIndices[this.currentContextKey]) {
                     this.unseenQuestionIndices[this.currentContextKey] = new Set(
                         this.currentContextQuestions.map((_, index) => index)
                     );
-                    this.failedQuestionIndices[this.currentContextKey] = new Set();
-                } else if (!this.unseenQuestionIndices[this.currentContextKey]) {
-                    // This might happen if all unseen were exhausted and then context reloaded, ensure it exists
-                    this.unseenQuestionIndices[this.currentContextKey] = new Set();
                 }
+                // If failed pool for this context doesn't exist, create it as an empty set.
                 if (!this.failedQuestionIndices[this.currentContextKey]) {
                     this.failedQuestionIndices[this.currentContextKey] = new Set();
                 }
-
+                // Note: This change ensures that if an unseen pool was missing, it gets correctly
+                // populated. It does not, by itself, reset an *existing but empty* unseen pool
+                // if a context is re-entered after being exhausted. That would be a separate
+                // game design consideration for "replaying" contexts.
             } catch (error) {
                 console.error("Failed to load questions for new context:", this.currentContextKey, error);
                 this.uiController.showError("Could not load questions for the selected element.");
@@ -506,6 +510,8 @@ class GameLogic {
                         this.unseenQuestionIndices[this.currentContextKey] = new Set(
                             this.currentContextQuestions.map((_, index) => index)
                         );
+                    }
+                    if (!this.failedQuestionIndices[this.currentContextKey]) {
                         this.failedQuestionIndices[this.currentContextKey] = new Set();
                     }
                 } catch (error) {

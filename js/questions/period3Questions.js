@@ -95,7 +95,7 @@ export const questions = [
     options: ["Magnesium", "Aluminum", "Calcium", "Phosphorus"],
     correct: 0,
     points: 15
-  }
+  },
   {
     text: "What is the electron configuration of chlorine?",
     options: ["1s² 2s² 2p⁶ 3s² 3p⁵", "1s² 2s² 2p⁶ 3s² 3p⁶", "1s² 2s² 2p⁵ 3s² 3p⁶", "1s² 2s² 2p⁶ 3s² 3p³"],

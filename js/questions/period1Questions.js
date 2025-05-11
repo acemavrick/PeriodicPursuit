@@ -23,19 +23,19 @@ export const questions = [
     options: ["Hydrogen", "Helium", "Neon", "Fluorine"],
     correct: 1,
     points: 20
-  }
+  },
   {
     text: "Why can’t Helium form chemical compounds under normal conditions?",
     options: ["It's radioactive", "It has a full valence shell", "It's too electronegative", "It's a metal"],
     correct: 1,
     points: 20
-  }
+  },
   {
     text: "Which element is produced in the Sun’s proton-proton chain?",
     options: ["Hydrogen", "Helium", "Carbon", "Oxygen"],
     correct: 1,
     points: 20
-  }
+  },
   {
     text: "Hydrogen’s emission line at 656 nm is called?",
     options: ["Balmer-alpha", "Lyman-alpha", "Paschen-beta", "Brackett-gamma"],

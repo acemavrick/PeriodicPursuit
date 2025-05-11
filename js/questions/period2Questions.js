@@ -101,10 +101,10 @@ export const questions = [
     options: ["Lithium", "Beryllium", "Boron", "Neon"],
     correct: 0,
     points: 15
-  }
+  },
   {
-    text: "What happens to Hydrogen at ~2 million atm pressure?
-    options: ["It becomes a superconductor", "It solidifies into a metal", "It turns into Helium", "It emits antimatter"]
+    text: "What happens to Hydrogen at ~2 million atm pressure?",
+    options: ["It becomes a superconductor", "It solidifies into a metal", "It turns into Helium", "It emits antimatter"],
     correct: 1,
     points: 15
   }
