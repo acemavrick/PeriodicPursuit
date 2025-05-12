@@ -224,5 +224,11 @@ export const questions = [
     options: ["7.20", "6.80", "7.00", "8.20"],
     correct: 0,
     points: 20
+  },
+  {
+    text: "A frustrated chemist said "Alright,\nHere's flouride and chlorate and bromite,\nAnd iodate too,\nBut I've looked through and through,\nAnd I can't find the sodium _________!"",
+    options: ["chlorite", "nitrite", "flourite", "sulfite", "phosphite"],
+    correct: 3,
+    points: 90
   }
 ];
