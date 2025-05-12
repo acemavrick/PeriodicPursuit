@@ -2,7 +2,7 @@
 export const questions = [
   {
     text: "What is the chemical symbol for Hydrogen?",
-    options: ["H", "He", "Hy", "Ho"],
+    options: ["H", "He", "Hy", "Hn"],
     correct: 0,
     points: 10
   },
@@ -40,6 +40,6 @@ export const questions = [
     text: "Hydrogen’s emission line at 656 nm is called?",
     options: ["Balmer-alpha", "Lyman-alpha", "Paschen-beta", "Brackett-gamma"],
     correct: 0,
-    points: 20
+    points: 25
   }
 ];

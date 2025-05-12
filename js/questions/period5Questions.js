@@ -231,9 +231,13 @@ export const questions = [
   {
     text: "A frustrated chemist said \"Alright,\nHere's flouride and chlorate and bromite,\nAnd iodate too,\nBut I've looked through and through,\nAnd I can't find the sodium _________!\"",
     options: ["chlorite", "nitrite", "flourite", "sulfite", "phosphite"],
-    correct: 3,
+    correct: 2,
     points: 90
+  },
+  {
+    text: "Hydrogen’s emission line at 656 nm is called?",
+    options: ["H-alpha", "Lyman-alpha", "Paschen-beta", "Brackett-gamma"],
+    correct: 0,
+    points: 25
   }
-
-
 ];

@@ -205,5 +205,4 @@ export const questions = [
     correct: 0,
     points: 30
   }
-
 ];

@@ -2,7 +2,7 @@
 export const questions = [
   {
     text: "What is the atomic number of Carbon?",
-    options: ["5", "6", "7", "12"],
+    options: ["12", "6", "7", "4"],
     correct: 1,
     points: 10
   },
@@ -43,8 +43,8 @@ export const questions = [
     points: 15
   },
   {
-    text: "Which Period 2 molecule features a triple bond?",
-    options: ["O₂", "N₂", "F₂", "Ne"],
+    text: "Which Period 2 diatomic molecule features a triple bond?",
+    options: ["O₂", "N₂", "F₂", "Ne₂"],
     correct: 1,
     points: 15
   },
@@ -91,20 +91,20 @@ export const questions = [
     points: 25
   },
   {
-    text: "Which Period 2 element participates in the carbonate equilibrium: CO₂ + H₂O ⇌ H₂CO₃?",
-    options: ["Carbon", "Oxygen", "Hydrogen", "Neon"],
+    text: "Which Period 2 element participates in the carbonate equilibrium?",
+    options: ["Carbon", "Carbonate", "Lithium", "bicarbonate"],
     correct: 0,
     points: 15
   },
   {
-    text: "Which Period 2 element’s hydride is a strong base (e.g., LiH + H₂O→ LiOH + H₂)?",
+    text: "Which Period 2 element’s hydride is a strong base?",
     options: ["Lithium", "Beryllium", "Boron", "Neon"],
     correct: 0,
     points: 15
   },
   {
     text: "What happens to Hydrogen at ~2 million atm pressure?",
-    options: ["It becomes a superconductor", "It solidifies into a metal", "It turns into Helium", "It emits antimatter"],
+    options: ["It becomes a superconductor", "It solidifies into a metal", "It turns into Helium", "It emits antimatter", "It becomes a liquid"],
     correct: 1,
     points: 15
   }

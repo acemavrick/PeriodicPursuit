@@ -16,7 +16,7 @@ export const questions = [
   },
   {
     text: "Which lanthanide is named after the dwarf planet Ceres?",
-    options: ["Cerium", "Promethium", "Europium", "Gadolinium"],
+    options: ["Cerium", "Ceresium", "Ceriopium", "Cerimium"],
     correct: 0,
     points: 10
   },

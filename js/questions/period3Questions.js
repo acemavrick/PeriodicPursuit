@@ -2,7 +2,7 @@
 export const questions = [
   {
     text: "What is the chemical symbol for Sodium?",
-    options: ["S", "Na", "So", "Nd"],
+    options: ["S", "Na", "Sm", "Nm"],
     correct: 1,
     points: 10
   },
@@ -25,34 +25,34 @@ export const questions = [
     points: 15
   },
   {
-    text: "Balance and identify the limiting reagent: 2 Na + 2 H₂O → 2 NaOH + H₂. If 2 mol Na reacts with 1 mol H₂O, which is limiting?",
-    options: ["Na", "H₂O", "Both equal", "Need mass info"],
+    text: "If 2 mol Na reacts with 1 mol H₂O, which is limiting?",
+    options: ["Na", "H₂O", "None", "Cannot be determined with given data"],
     correct: 1,
     points: 20
   },
   {
-    text: "Which Period 3 element forms a stable 5-coordinate compound (e.g., PCl₅)?",
+    text: "Which Period 3 element forms a stable 5-coordinate compound?",
     options: ["Phosphorus", "Silicon", "Aluminum", "Sulfur"],
     correct: 0,
     points: 15
   },
   {
-    text: "What is the standard enthalpy change ΔH° for 2 NaCl(s) → 2 Na(s) + Cl₂(g) if bond energies are Na–Cl=410 kJ, Cl–Cl=242 kJ? (Approximate)",
+    text: "Closest to ΔH° of reaction:\n 2 NaCl(s) → 2 Na(s) + Cl₂(g)\nNa–Cl=410 kJ, Cl–Cl=242 kJ?",
     options: ["+818 kJ", "–818 kJ", "+100 kJ", "–100 kJ"],
     correct: 0,
     points: 25
   },
   {
-    text: "Which Period 3 cation gives a yellow flame test?",
+    text: "Which Period 3 cation gives a yellow flame in a flame test?",
     options: ["Sodium", "Potassium", "Calcium", "Copper"],
     correct: 2,
-    points: 10
+    points: 15
   },
   {
-    text: "0.100 mol of MgCl₂ is dissolved in water to make 1 L solution. What is [Cl⁻]?",
+    text: "0.100 mol of MgCl₂ is dissolved in water to make 1 L solution. [Cl⁻] = ___?",
     options: ["0.200 M", "0.100 M", "0.050 M", "0.300 M"],
     correct: 0,
-    points: 15
+    points: 10
   },
   {
     text: "Which acid-base indicator would change color near pH 7?",
@@ -61,7 +61,7 @@ export const questions = [
     points: 15
   },
   {
-    text: "At equilibrium, Kc = [SO₃]²/[SO₂]²[O₂]. If initial [SO₂]=[O₂]=1 M and Kc=2, what [SO₃] at equilibrium?",
+    text: "For the formation of SO₃ from SO₂ & O₂. Initial [SO₂]=[O₂]=1 M and Kc=2; [SO₃] at equilibrium = ___.",
     options: ["2 M", "1 M", "√2 M", "0.5 M"],
     correct: 2,
     points: 20
@@ -145,13 +145,13 @@ export const questions = [
     points: 15
   },
   {
-    text: "What is the hybridization of Al in AlCl₃?",
+    text: "What is the hybridization of Al in aluminum chloride?",
     options: ["sp", "sp²", "sp³", "sp³d"],
     correct: 1, 
     points: 20
   },
   {
-    text: "When Period 3 metals react with oxygen, which forms a peroxide?",
+    text: "When Period 3 metal forms a peroxide when reacting with oxygen?",
     options: ["Sodium", "Magnesium", "Aluminum", "Silicon"],
     correct: 0, 
     points: 15

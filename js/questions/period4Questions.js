@@ -8,7 +8,7 @@ export const questions = [
     points: 10
   },
   {
-    text: "Calcium is an alkaline earth metal in Period 4. What is its atomic number?",
+    text: "What is calcium's atomic number?",
     options: ["19", "20", "21", "22"],
     correct: 1,
     points: 10
@@ -23,7 +23,7 @@ export const questions = [
     text: "Which Period 4 element exists as a liquid at room temperature?",
     options: ["Bromine", "Mercury", "Gallium", "Cesium"],
     correct: 0,
-    points: 10
+    points: 15
   },
   {
     text: "Which of these Period 4 elements commonly forms a +2 cation in aqueous solution?",
@@ -41,15 +41,15 @@ export const questions = [
   },
   {
     text: "Which Period 4 element is ferromagnetic at room temperature?",
-    options: ["Manganese", "Iron", "Cobalt", "Nickel"],
+    options: ["Ferrous", "Iron", "Cobalt", "Nickel"],
     correct: 1,
     points: 15
   },
   {
-    text: "Chromium(VI) in dichromate (Cr₂O₇²⁻) is reduced to Cr³⁺. How many electrons are transferred per chromium atom?",
+    text: "Chromium(VI) in dichromate is reduced to Cr³⁺. How many electrons are transferred per chromium atom?",
     options: ["1", "2", "3", "6"],
     correct: 2,
-    points: 15
+    points: 20
   },
   {
     text: "Which Period 4 metal is used to galvanize steel to prevent rusting?",
@@ -59,8 +59,8 @@ export const questions = [
   },
   {
     text: "Gallium has a melting point near 30 °C. Which demonstration illustrates this property?",
-    options: ["It melts in your hand", "It evaporates quickly", "It sparks in air", "It glows faintly"],
-    correct: 0,
+    options: ["It is liquid at STP", "It melts in standard laboratory conditions", "It melts in your hand", "It evaporates quickly"],
+    correct: 2,
     points: 15
   },
 
@@ -72,7 +72,7 @@ export const questions = [
     points: 20
   },
   {
-    text: "If 40.0 g of Ca reacts completely with O₂ to form CaO (2 Ca + O₂ → 2 CaO), how many grams of CaO are produced? (M Ca=40.08, M CaO=56.08)",
+    text: "If 40.0 g of Ca reacts with excess O₂, how many grams of product are produced?",
     options: ["40.0 g", "55.9 g", "80.0 g", "112.2 g"],
     correct: 1,
     points: 20
@@ -84,13 +84,13 @@ export const questions = [
     points: 20
   },
   {
-    text: "How many milliliters of 0.100 M HCl are needed to neutralize 25.0 mL of 0.150 M Ca(OH)₂? (2 HCl + Ca(OH)₂ → CaCl₂ + 2 H₂O)",
+    text: "How many milliliters of 0.100 M HCl are needed to neutralize 25.0 mL of 0.150 M Ca(OH)₂?",
     options: ["75.0 mL", "37.5 mL", "125.0 mL", "50.0 mL"],
     correct: 0,
     points: 20
   },
   {
-    text: "Given Ksp for CaF₂ is 1.4×10⁻¹⁰, what is [Ca²⁺] in a saturated solution? (CaF₂ → Ca²⁺ + 2 F⁻)",
+    text: "Given Ksp for CaF₂ is 1.4×10⁻¹⁰, what is [Ca²⁺] in a saturated solution?",
     options: ["3.2×10⁻⁴ M", "2.4×10⁻⁴ M", "5.2×10⁻³ M", "1.2×10⁻² M"],
     correct: 0,
     points: 20
@@ -98,28 +98,28 @@ export const questions = [
 
   // Equilibrium & Kinetics (25 pts)
   {
-    text: "For the half-reaction Cr₂O₇²⁻ + 14 H⁺ + 6 e⁻ → 2 Cr³⁺ + 7 H₂O, what is E°cell if E°(Cr₂O₇²⁻/Cr³⁺)=1.33 V?",
-    options: ["1.33 V", "0.67 V", "2.00 V", "1.67 V"],
+    text: "For the Cr₂O₇²⁻ + 14 H⁺ + 6 e⁻ → 2 Cr³⁺ + 7 H₂O, what is E°cell if E°(Cr₂O₇²⁻/Cr³⁺)=1.33 V?",
+    options: ["1.33 V", "0.67 V", "2.33 V", "1.67 V"],
     correct: 0,
-    points: 25
+    points: 10
   },
   {
     text: "The rate law for H₂O₂ decomposition catalyzed by MnO₂ is rate=k[H₂O₂]. If [H₂O₂] doubles, the rate:",
     options: ["Remains the same", "Doubles", "Quadruples", "Halves"],
     correct: 1,
-    points: 25
+    points: 10
   },
   {
     text: "At equilibrium, 2 Fe³⁺ + 2 I⁻ ⇌ 2 Fe²⁺ + I₂. If [I⁻] is increased, [Fe²⁺] will:",
     options: ["Increase", "Decrease", "Remain unchanged", "Shift to reactants"],
     correct: 0,
-    points: 25
+    points: 15
   },
   {
     text: "Calculate ΔH°rxn for formation of TiO₂ from elements if ΔHf°(TiO₂)=−944 kJ/mol.",
     options: ["−944 kJ", "0 kJ", "+944 kJ", "Insufficient data"],
     correct: 0,
-    points: 25
+    points: 5 
   },
   {
     text: "Which Period 4 complex exhibits a UV–Vis d–d transition giving a pale violet color?",
@@ -202,10 +202,10 @@ export const questions = [
     points: 20
   },
   {
-    text: "Which complex ion is deep blue due to formation of [Cu(NH₃)₄]²⁺?",
+    text: "Which complex ion is deep blue?",
     options: ["[Cu(H₂O)₆]²⁺", "[Cu(NH₃)₄]²⁺", "[Ni(NH₃)₆]²⁺", "[Zn(NH₃)₄]²⁺"],
     correct: 1,
-    points: 20
+    points: 35
   },
   {
     text: "Which of these complexes is colorless and diamagnetic?",
@@ -228,7 +228,13 @@ export const questions = [
   {
     text: "A frustrated chemist said \"Alright,\nHere's flouride and chlorate and bromite,\nAnd iodate too,\nBut I've looked through and through,\nAnd I can't find the sodium _________!\"",
     options: ["chlorite", "nitrite", "flourite", "sulfite", "phosphite"],
-    correct: 3,
+    correct: 2,
     points: 90
+  },
+  {
+    text: "Hydrogen’s emission line at 656 nm is called?",
+    options: ["H-alpha", "Lyman-alpha", "Paschen-beta", "Brackett-gamma"],
+    correct: 0,
+    points: 25
   }
 ];

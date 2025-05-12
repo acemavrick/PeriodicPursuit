@@ -2,8 +2,7 @@
 
 An interactive chemistry educational game where players strategically navigate the periodic table by answering chemistry questions.
 
-**Important note:** A full playthrough of this game has not been completed, so there may be latent bugs. If you find any bugs, 
-**please create an issue**
+If you find any bugs, **please create an issue**.
 
 ## Game Overview
 
