@@ -227,6 +227,13 @@ export const questions = [
     options: ["White (β)", "Gray (α)", "Both", "Neither"],
     correct: 0,
     points: 30
+  },
+  {
+    text: "A frustrated chemist said \"Alright,\nHere's flouride and chlorate and bromite,\nAnd iodate too,\nBut I've looked through and through,\nAnd I can't find the sodium _________!\"",
+    options: ["chlorite", "nitrite", "flourite", "sulfite", "phosphite"],
+    correct: 3,
+    points: 90
   }
+
 
 ];
